@@ -18,6 +18,9 @@
   },
   "homepage": "https://github.com/maxwellstickels/employee-tracker#readme",
   "dependencies": {
-    "mysql": "^2.18.1"
+    "dotenv": "^10.0.0",
+    "inquirer": "^8.1.0",
+    "mysql": "^2.18.1",
+    "sequelize": "^6.6.2"
   }
 }
