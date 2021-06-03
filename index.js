@@ -93,7 +93,7 @@ function addRole() {
         await connection.query('INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)',
         [response.title, response.salary, response.dep], (err, result) => {
             if (err) throw err;
-            console.log('\x1b[33m', "Added role with ID: " + result.insertId);
+            console.log('\x1b[33m', "Added role with ID: " + result.insertId + "\n");
             promptReqType();
         });
     });
@@ -113,7 +113,115 @@ function addDepartment() {
         await connection.query('INSERT INTO department (name) VALUES (?)',
         [response.title], (err, result) => {
             if (err) throw err;
-            console.log('\x1b[33m', "Added department with ID: " + result.insertId);
+            console.log('\x1b[33m', "Added department with ID: " + result.insertId + "\n");
+            promptReqType();
+        });
+    });
+}
+
+function updateDepartment() {
+    inq.prompt([
+        {
+            type: "input",
+            message: "UPDATING DEPARTMENT: Provide the ID of the department to be changed.",
+            name: "id",
+            validate: (id) => {
+                return (id.length > 0 && !isNaN(Number(id))) || "This field requires an integer value.";
+            }
+        },
+        {
+            type: "input",
+            message: "UPDATING DEPARTMENT: State the new name of the department.",
+            name: "title",
+            validate: (title) => {
+                return (title.length > 0) || "This field is required.";
+            }
+        },
+    ]).then(async (response) => {
+        await connection.query('UPDATE department SET ? WHERE ?', 
+        [{name: response.title},{id: response.id}], (err) => {
+            if (err) throw err;
+            console.log('\x1b[33m', "Processed update request for department with ID: " + response.id + "\n");
+        });
+    });
+}
+
+function updateEmployee() {
+    inq.prompt([
+        {
+            type: "input",
+            message: "UPDATING EMPLOYEE: Provide the ID of the employee to be changed.",
+            name: "id",
+            validate: (id) => {
+                return (id.length > 0 && !isNaN(Number(id))) || "This field requires an integer value.";
+            }
+        },
+        {
+            type: "input",
+            message: "UPDATING EMPLOYEE: Enter the employee's new first name (or leave blank).",
+            name: "first",
+        },
+        {
+            type: "input",
+            message: "UPDATING EMPLOYEE: Enter the employee's new last name (or leave blank).",
+            name: "last",
+        },
+        {
+            type: "input",
+            message: "UPDATING EMPLOYEE: State the employee's new annual salary (or leave blank).",
+            name: "salary",
+            validate: (salary) => {
+                return (!isNaN(Number(salary))) || "Please type the new salary as a number.";
+            }
+        },
+        {
+            type: "input",
+            message: "UPDATING EMPLOYEE: Provide the new role ID for this employee (or leave blank).",
+            name: "role",
+            validate: (role) => {
+                return (!isNaN(Number(role))) || "Please type the ID as a number.";
+            }
+        },
+        {
+            type: "list",
+            message: "UPDATING EMPLOYEE: Change manager ID?",
+            choices: ["YES", "NO"],
+            name: "choice",
+        },
+
+    ]).then(async (response) => {
+        var query = "UPDATE employee SET "
+        var querySet = [];
+        if (response.first.length > 0) {
+
+            querySet.push(response.first);
+        }
+        if (response.last.length > 0) {
+            querySet.push({last_name: response.last});
+        }
+        if (response.salary.length > 0) {
+            querySet.push({salary: response.salary});
+        }
+        if (response.role.length > 0) {
+            querySet.push({role_id: response.role});
+        }
+        if (response.choice === "YES") {
+            const managerResponse = await inq.prompt([
+                {
+                type: "input",
+                message: "UPDATING EMPLOYEE: Provide the ID of this employee's new manager (leave blank if employee now has no manager).",
+                name: "manager",
+                validate: (manager) => {
+                    return (manager.length === 0 || !isNaN(Number(manager))) || "Value must be an integer (or empty if employee now has no manager).";
+                }
+            }]);
+            const managerID = (managerResponse.manager.length > 0) ? managerResponse.manager : null;
+            querySet.push({manager_id: managerID});
+        }
+        await connection.query('UPDATE employee SET first_name = ?, last_name = ?,  WHERE ?', 
+        [querySet, {id: response.id}], (err) => {
+            if (err) throw err;
+            console.log('\x1b[33m', "Processed update request for employee with ID: " + response.id + "\n");
             promptReqType();
         });
     });
