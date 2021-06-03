@@ -143,6 +143,7 @@ function updateDepartment() {
         [{name: response.title},{id: response.id}], (err) => {
             if (err) throw err;
             console.log('\x1b[33m', "Processed update request for department with ID: " + response.id + "\n");
+            promptReqType();
         });
     });
 }
@@ -203,8 +204,35 @@ function updateRole() {
     });
 }
 
-function viewDepartment() {
-    return null;
+async function viewDepartment() {
+    await connection.query("SELECT * FROM department", (err, result) => {
+        if (err) throw err;
+        const table = ctab.getTable(result);
+        console.log('\x1b[33m', table);
+        promptReqType();
+    });
+}
+
+async function viewEmployee() {
+    var query = "SELECT employee.id, employee.first_name, employee.last_name, employee.salary, role.title, employee.manager_id ";
+    query += "FROM employee LEFT JOIN role ON (employee.role_id = role.id)"
+    await connection.query(query, (err, result) => {
+        if (err) throw err;
+        const table = ctab.getTable(result);
+        console.log('\x1b[33m', table);
+        promptReqType();
+    });
+}
+
+async function viewRole() {
+    var query = "SELECT role.id, role.title, role.salary, department.name ";
+    query += "FROM role LEFT JOIN department ON (role.department_id = department.id)";
+    await connection.query(query, (err, result) => {
+        if (err) throw err;
+        const table = ctab.getTable(result);
+        console.log('\x1b[33m', table);
+        promptReqType();
+    });
 }
 
 function findReqType(change, object) {
@@ -253,12 +281,18 @@ function promptReqType() {
         {
             type: "list",
             message: "What would you like to view/modify?",
-            choices: ["EMPLOYEE", "ROLE", "DEPARTMENT"],
+            choices: ["EMPLOYEE", "ROLE", "DEPARTMENT", "EXIT EMPLOYEE TRACKER"],
             name: "object"
         }
         ]).then(
             (response) => {
-                findReqType(response.change, response.object);
+                if (response.object !== "EXIT EMPLOYEE TRACKER") {
+                    findReqType(response.change, response.object);
+                }
+                else {
+                    console.log('\x1b[33m', "Bye bye!");
+                    connection.end();
+                }
             }
         );
 }
