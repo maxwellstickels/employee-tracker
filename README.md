@@ -11,4 +11,4 @@ To add an employee to the current list of employees, simply select ADD, then EMP
 This application was created using Javascript (2020 Build) in Visual Studio Code 1.56.2, and the database was created using SQL queries in MySQL Workbench 8.0 CE. The node.js application requires installing the console.table, dotenv, inquirer, and mysql libraries; these can be installed through npm.
 
 ## Example
-![Video Displaying The Code In Action](https://drive.google.com/file/d/1qGS5OWVVN2B5HRjjvv0pxcu-W6QkYbtD/view)
+[Video Displaying The Code In Action](https://drive.google.com/file/d/1qGS5OWVVN2B5HRjjvv0pxcu-W6QkYbtD/view)
